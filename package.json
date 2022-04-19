@@ -6,8 +6,10 @@
   "author": "Amar Kisoensingh <amar@kisoensingh.sh>",
   "license": "MIT",
   "scripts": {
-    "start": "ts-node-dev --respawn --transpile-only server.ts",
-    "seed": "ts-node --transpile-only ./prisma/seed.ts"
+    "build": "tsc",
+    "start:prod": "yarn seed && node dist/src/server.js",
+    "start": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "seed": "ts-node --transpile-only src/prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^3.12.0",
