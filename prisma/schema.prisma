@@ -1,0 +1,38 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model TelegramNotification {
+  id                          Int                           @id @default(autoincrement())
+  chatId                      String
+  messageId                   String
+  movieId                     Int
+  created                     DateTime                      @default(now())
+  TelegramNotificationCinemas TelegramNotificationCinemas[]
+}
+
+model TelegramNotificationCinemas {
+  notify TelegramNotification @relation(fields: [notifyId], references: [id], onDelete: Cascade)
+  cinema Cinema               @relation(fields: [cinemaId], references: [id], onDelete: Cascade)
+
+  notifyId Int
+  cinemaId Int
+
+  @@id([notifyId, cinemaId])
+}
+
+model Cinema {
+  id                          Int                           @id @default(autoincrement())
+  patheId                     Int                           @unique
+  name                        String
+  city                        String
+  TelegramNotificationCinemas TelegramNotificationCinemas[]
+}
