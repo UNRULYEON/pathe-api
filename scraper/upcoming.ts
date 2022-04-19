@@ -14,7 +14,7 @@ type Movie = {
 }
 
 export const getUpcomingFilms = async (): Promise<Movie[]> => {
-  const res = await Promise.all([1, 2, 3, 4, 5].map(id => instance.get(`${BASE_URL}?page=${id}`).then(({ data }) => {
+  const res = await Promise.all([1, 2, 3, 4, 5].map(id => instance.get(`?page=${id}`).then(({ data }) => {
     const $ = cheerio.load(data)
 
     const moviesNode = $('a.poster')
