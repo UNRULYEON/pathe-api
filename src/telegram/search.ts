@@ -1,13 +1,10 @@
-import TelegramBot, { InlineKeyboardButton } from "node-telegram-bot-api"
-import { searchFilms } from "./scraper/search"
-import { Action, SearchActions } from "./scraper/types"
-import { encodeAction } from "./scraper/utils"
+import { InlineKeyboardButton } from "node-telegram-bot-api"
+import { searchFilms } from "../scraper/search"
+import { SearchAction, SearchActions, SearchActionsPayload } from "./types"
+import { encodeAction } from "./utils"
+import { bot } from "./bot"
 
-const token = process.env.TELEGRAM_BOT_TOKEN
-
-const bot = new TelegramBot(token, { polling: true });
-
-const initBot = () => {
+const searchBot = () => {
   bot.onText(/\/search (.+)/, async (msg, match) => {
     const chatId = msg.chat.id
     const query = match[1]
@@ -19,11 +16,11 @@ const initBot = () => {
       return
     }
 
-    const nextButton: InlineKeyboardButton = { text: 'Next', callback_data: encodeAction<SearchActions>({ action: '@search_next', index: 0 + 1, query }) }
+    const nextButton: InlineKeyboardButton = { text: 'Next', callback_data: encodeAction({ action: 'next', payload: { index: 0 + 1, query } }) }
 
     const agendaButton: InlineKeyboardButton = { text: 'Agenda', url: results[0].agendaUrl }
 
-    const notifyWhenAvailableButton: InlineKeyboardButton = { text: 'Notify when available', callback_data: encodeAction<SearchActions>({ action: '@search_notify', index: 0, query }) }
+    const notifyWhenAvailableButton: InlineKeyboardButton = { text: 'Notify when available', callback_data: encodeAction({ action: 'notify', payload: { id: results[0].id, name: results[0].name } }) }
 
     const keyboardWithOneResult: InlineKeyboardButton[][] = [
       [agendaButton, notifyWhenAvailableButton]
@@ -43,19 +40,23 @@ const initBot = () => {
   })
 
   bot.on('callback_query', async (callback) => {
-    const { action, index, query } = JSON.parse(callback.data) as Action<SearchActions>
+    const { action, payload: { index, query } } = JSON.parse(callback.data) as SearchAction
     const chatId = callback.message.chat.id
     const messageId = callback.message.message_id
 
+    const allowedActions: SearchActions[] = ['prev', 'next']
+
+    if (!allowedActions.includes(action)) return
+
     const results = await searchFilms(query)
 
-    const backButton: InlineKeyboardButton = { text: 'Back', callback_data: encodeAction<SearchActions>({ action: '@search_prev', index: index - 1, query: query }) }
+    const backButton: InlineKeyboardButton = { text: 'Back', callback_data: encodeAction({ action: 'prev', payload: { index: index - 1, query: query } }) }
 
-    const nextButton: InlineKeyboardButton = { text: 'Next', callback_data: encodeAction<SearchActions>({ action: '@search_next', index: index + 1, query: query }) }
+    const nextButton: InlineKeyboardButton = { text: 'Next', callback_data: encodeAction({ action: 'next', payload: { index: index + 1, query: query } }) }
 
     const agendaButton: InlineKeyboardButton = { text: 'Agenda', url: results[0].agendaUrl }
 
-    const notifyWhenAvailableButton: InlineKeyboardButton = { text: 'Notify when available', callback_data: encodeAction<SearchActions>({ action: '@search_notify', index: 0, query: query }) }
+    const notifyWhenAvailableButton: InlineKeyboardButton = { text: 'Notify when available', callback_data: encodeAction({ action: 'notify', payload: { id: results[0].id, name: results[0].name } }), }
 
     const keyboardWithFirstResult: InlineKeyboardButton[][] = [
       [nextButton],
@@ -73,7 +74,7 @@ const initBot = () => {
     ]
 
     switch (action) {
-      case '@search_prev':
+      case 'prev':
         bot.editMessageMedia({ media: results[index].posterUrl, type: 'photo', caption: results[index].name }, {
           chat_id: chatId,
           message_id: messageId,
@@ -82,7 +83,7 @@ const initBot = () => {
           }
         })
         break;
-      case '@search_next':
+      case 'next':
         bot.editMessageMedia({ media: results[index].posterUrl, type: 'photo', caption: results[index].name }, {
           chat_id: chatId,
           message_id: messageId,
@@ -91,12 +92,10 @@ const initBot = () => {
           }
         })
         break;
-      case '@search_notify':
-        break;
       default:
         break;
     }
   })
 }
 
-export default initBot
+export default searchBot

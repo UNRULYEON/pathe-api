@@ -2,7 +2,7 @@ import 'dotenv/config'
 import express from 'express'
 import { getUpcomingFilms } from './scraper/upcoming'
 import { searchFilms } from './scraper/search'
-import initBot from './bot'
+import initBot from './telegram/bot'
 
 const app = express()
 
