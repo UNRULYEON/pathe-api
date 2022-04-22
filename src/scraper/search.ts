@@ -7,7 +7,7 @@ const instance = axios.create({
   baseURL: BASE_URL,
 })
 
-type Movie = {
+export type Movie = {
   id: string
   name: string
   posterUrl: string
@@ -38,7 +38,7 @@ export const searchFilms = async (query: string): Promise<Movie[]> => {
     return movies
   })
 
-  console.log(result)
+  //console.log(result)
 
   return result
 }
