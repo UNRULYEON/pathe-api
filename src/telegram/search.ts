@@ -10,6 +10,7 @@ const agendaButton: InlineKeyboardButton = { text: "Agenda", callback_data: "age
 //TODO: improve
 const getState = (index: number, array_size: number): InlineKeyboardButton[][] => {
   const current_state = []
+  console.log(index)
   if (index > 0) {
     current_state.push(backButton)
   }
@@ -18,18 +19,25 @@ const getState = (index: number, array_size: number): InlineKeyboardButton[][] =
   }
   return [current_state, [notifyButton, agendaButton]]
 }
+type MovieResults = {
+  results: Movie[]
+  index: number
+}
+type userId = number
+const getMovieIndex = (m: MovieResults) => m.results[m.index]
 
 const searchBot = () => {
-  let results: Movie[] = []
-  let index = 0
+  const userSearches = new Map<userId, MovieResults>()
   bot.onText(/\/search (.+)/, async (msg, match) => {
     const chatId = msg.chat.id
     const query = match[1]
-    results = await searchFilms(query)
-    bot.sendPhoto(chatId, results[index].posterUrl, {
-      caption: results[index].name,
+    userSearches.set(chatId, { index: 0, results: await searchFilms(query) })
+    const currentSearch = userSearches.get(chatId)
+    const currentResult = getMovieIndex(currentSearch)
+    bot.sendPhoto(chatId, currentResult.posterUrl, {
+      caption: currentResult.name,
       reply_markup: {
-        inline_keyboard: getState(index, results.length - 1),
+        inline_keyboard: getState(currentSearch.index, currentSearch.results.length - 1),
       },
     })
   })
@@ -38,29 +46,34 @@ const searchBot = () => {
     const chatId = callback.message.chat.id
     const messageId = callback.message.message_id
     //TODO: improve index increment and decrements
+    if (!userSearches.has(chatId)) {
+      return
+    }
+    const currentSearch = userSearches.get(chatId)
+
     switch (callback.data) {
       case "prev":
-        index--
+        userSearches.get(chatId).index--
         bot.editMessageMedia(
-          { media: results[index].posterUrl, type: "photo", caption: results[index].name },
+          { media: getMovieIndex(currentSearch).posterUrl, type: "photo", caption: getMovieIndex(currentSearch).name },
           {
             chat_id: chatId,
             message_id: messageId,
             reply_markup: {
-              inline_keyboard: getState(index, results.length - 1),
+              inline_keyboard: getState(currentSearch.index, currentSearch.results.length - 1),
             },
           }
         )
         break
       case "next":
-        index++
+        userSearches.get(chatId).index++
         bot.editMessageMedia(
-          { media: results[index].posterUrl, type: "photo", caption: results[index].name },
+          { media: getMovieIndex(currentSearch).posterUrl, type: "photo", caption: getMovieIndex(currentSearch).name },
           {
             chat_id: chatId,
             message_id: messageId,
             reply_markup: {
-              inline_keyboard: getState(index, results.length - 1),
+              inline_keyboard: getState(currentSearch.index, currentSearch.results.length - 1),
             },
           }
         )
