@@ -1,6 +1,7 @@
 import { InlineKeyboardButton } from "node-telegram-bot-api"
 import { Movie, searchFilms } from "../scraper/search"
 import { bot } from "./bot"
+import { MovieResults, userId } from "./types"
 
 const backButton: InlineKeyboardButton = { text: "Back", callback_data: "prev" }
 const nextButton: InlineKeyboardButton = { text: "Next", callback_data: "next" }
@@ -10,7 +11,6 @@ const agendaButton: InlineKeyboardButton = { text: "Agenda", callback_data: "age
 //TODO: improve
 const getState = (index: number, array_size: number): InlineKeyboardButton[][] => {
   const current_state = []
-  console.log(index)
   if (index > 0) {
     current_state.push(backButton)
   }
@@ -19,15 +19,9 @@ const getState = (index: number, array_size: number): InlineKeyboardButton[][] =
   }
   return [current_state, [notifyButton, agendaButton]]
 }
-type MovieResults = {
-  results: Movie[]
-  index: number
-}
-type userId = number
-const getMovieIndex = (m: MovieResults) => m.results[m.index]
+export const getMovieIndex = (m: MovieResults) => m.results[m.index]
 
-const searchBot = () => {
-  const userSearches = new Map<userId, MovieResults>()
+const searchBot = (userSearches: Map<userId, MovieResults>) => {
   bot.onText(/\/search (.+)/, async (msg, match) => {
     const chatId = msg.chat.id
     const query = match[1]

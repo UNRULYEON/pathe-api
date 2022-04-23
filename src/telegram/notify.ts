@@ -1,18 +1,17 @@
 import { cinemas, PatheCinema } from "../cinemas"
 import { bot } from "./bot"
+import { userId } from "./types"
 
-type LocationNames = Omit<PatheCinema, "id">
-const notifyBot = () => {
-  const cinemasHash = new Map<number, LocationNames>()
+const notifyBot = (cinemasHash: Map<userId, Map<number, PatheCinema>>) => {
   bot.on("callback_query", async (callback) => {
     //Cant get the id
-    const movieTitle = callback.message.caption
-
     const action = callback.data
     const chatId = callback.message.chat.id
     const messageId = callback.message.message_id
     const cinemaIds = cinemas.map((e) => `select-${e.id}`)
     const allowedActions: string[] = ["notify", "confirm", ...cinemaIds]
+
+    if (!cinemasHash.has(chatId)) cinemasHash.set(chatId, new Map())
 
     //TODO: parse id. Can this be done better
     const lastSelectedId = parseInt(action.split("-").reverse()[0])
@@ -25,8 +24,8 @@ const notifyBot = () => {
           bot.editMessageReplyMarkup(
             {
               inline_keyboard: [
-                ...getKeyboard(lastSelectedId, cinemasHash),
-                [{ text: "✅", callback_data: "action, 39, 28" }],
+                ...getKeyboard(lastSelectedId, cinemasHash.get(chatId)),
+                [{ text: "✅", callback_data: "confirm" }],
               ],
             },
             { chat_id: chatId, message_id: messageId }
@@ -37,15 +36,12 @@ const notifyBot = () => {
     switch (action) {
       case "notify":
         bot.editMessageReplyMarkup({ inline_keyboard: [] }, { chat_id: chatId, message_id: messageId })
-
         bot.sendMessage(chatId, "Please select one or more cinemas", {
           reply_markup: {
             // TODO: Pas callback_data van confirm aan
-            inline_keyboard: [...getKeyboard(-1, cinemasHash), [{ text: "✅", callback_data: "action, 39, 28" }]],
+            inline_keyboard: [...getKeyboard(0, cinemasHash.get(chatId)), [{ text: "✅", callback_data: "confirm" }]],
           },
         })
-        break
-      case "confirm":
         break
       default:
         break
@@ -54,8 +50,12 @@ const notifyBot = () => {
 }
 
 // todo: refactor to Option<string>
-const getKeyboard = (selectedId: number, cinemasmap: Map<number, LocationNames>) => {
-  cinemasmap.has(selectedId) ? cinemasmap.delete(selectedId) : cinemasmap.set(selectedId, cinemas.at(selectedId))
+const getKeyboard = (selectedId: number, cinemasmap: Map<number, PatheCinema>) => {
+  const selectedCinema = cinemas.find((e) => e.id == selectedId)
+  cinemas.forEach
+  cinemasmap.has(selectedId)
+    ? cinemasmap.delete(selectedId)
+    : selectedCinema != undefined && cinemasmap.set(selectedId, selectedCinema)
   const keyboard = cinemas.reduce((arr, curr, ind) => {
     const res = {
       text: `${cinemasmap.has(curr.id) ? "✅ " : ""}${curr.name}`,
@@ -71,7 +71,6 @@ const getKeyboard = (selectedId: number, cinemasmap: Map<number, LocationNames>)
 
     return arr
   }, [])
-
   return keyboard
 }
 export default notifyBot

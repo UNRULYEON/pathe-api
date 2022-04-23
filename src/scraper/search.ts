@@ -1,18 +1,12 @@
 import * as cheerio from "cheerio"
 import axios from "axios"
+import { Movie } from "../telegram/types"
 
 const BASE_URL = "https://www.pathe.nl"
 
 const instance = axios.create({
   baseURL: BASE_URL,
 })
-
-export type Movie = {
-  id: string
-  name: string
-  posterUrl: string
-  agendaUrl: string
-}
 
 export const searchFilms = async (query: string): Promise<Movie[]> => {
   const result = await instance.get(`Zoek?q=${query}`).then(({ request, data }) => {
