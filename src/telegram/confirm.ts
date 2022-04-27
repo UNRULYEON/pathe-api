@@ -1,26 +1,59 @@
 import { PatheCinema } from "../cinemas"
 import { bot } from "./bot"
-import { getMovieIndex } from "./search"
-import { MovieResults, userId } from "./types"
+import { getMovieByIndex } from "./search"
+import { MovieResults, Id } from "./types"
+import prisma from "../prisma/context"
 
-const confirmBot = (userSearches: Map<userId, MovieResults>, cinemasHash: Map<userId, Map<number, PatheCinema>>) => {
+const confirmBot = (userSearches: Map<Id, MovieResults>, cinemasHash: Map<Id, Map<number, PatheCinema>>) => {
   bot.on("callback_query", async (callback) => {
     const action = callback.data
     const chatId = callback.message.chat.id
     const messageId = callback.message.message_id
+
     switch (action) {
       case "confirm":
-        const t = userSearches.get(chatId)
-        const selectedMovie = getMovieIndex(t)
+        const selectedMovies = userSearches.get(chatId)
+        const selectedMovie = getMovieByIndex(selectedMovies)
         const selectedCinemas = [...cinemasHash.get(chatId).values()]
+        const selectedCinemasDB = await prisma.cinema
+          .findMany()
+          .then((cinemas) =>
+            selectedCinemas.length > 1
+              ? cinemas.filter((cinema) => selectedCinemas.find((selectedCinema) => selectedCinema.id === cinema.id))
+              : cinemas
+          )
+        const selectedCinemaNames = selectedCinemasDB.reduce(
+          (acc, cinema, _) =>
+            acc +
+            `- ${cinema.name}
+`,
+          ""
+        )
+
         userSearches.delete(chatId)
         cinemasHash.delete(chatId)
-        bot.editMessageReplyMarkup({ inline_keyboard: [] }, { chat_id: chatId, message_id: messageId })
-        bot.sendMessage(
-          chatId,
-          `Selected movie: ${JSON.stringify(selectedMovie.name)}\n
-          Selected cinema(s): ${selectedCinemas.map((e) => `${e.id} == ${e.name}: ${e.city}}`)}`
-        )
+
+        prisma.telegramNotification
+          .create({
+            data: {
+              chatId: chatId.toString(),
+              movieId: parseInt(selectedMovie.id),
+              messageId: messageId.toString(),
+              TelegramNotificationCinemas: {
+                createMany: { data: selectedCinemasDB.map((ID) => ({ cinemaId: ID.id })) },
+              },
+            },
+          })
+          .then(() => {
+            bot.editMessageReplyMarkup({ inline_keyboard: [] }, { chat_id: chatId, message_id: messageId }).then(() => {
+              bot.editMessageText(
+                `We'll notify you when the times are available for:
+
+${selectedCinemaNames}`,
+                { chat_id: chatId, message_id: messageId }
+              )
+            })
+          })
         break
       default:
         break

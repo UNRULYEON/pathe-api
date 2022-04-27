@@ -1,8 +1,8 @@
 import { cinemas, PatheCinema } from "../cinemas"
 import { bot } from "./bot"
-import { userId } from "./types"
+import { Id } from "./types"
 
-const notifyBot = (cinemasHash: Map<userId, Map<number, PatheCinema>>) => {
+const notifyBot = (cinemasHash: Map<Id, Map<number, PatheCinema>>) => {
   bot.on("callback_query", async (callback) => {
     //Cant get the id
     const action = callback.data

@@ -23,7 +23,7 @@ export const getUpcomingFilms = async (): Promise<Movie[]> => {
 
         const movies: Movie[] = []
 
-        moviesNode.each((i, el) => {
+        moviesNode.each((_, el) => {
           const movie = $(el)
           const id = movie.attr("data-gtmclick")
           const name = movie.find("p.poster__label").text()

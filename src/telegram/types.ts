@@ -20,10 +20,11 @@ export type Movie = {
   posterUrl: string
   agendaUrl: string
 }
+
 export type MovieResults = {
   results: Movie[]
   index: number
 }
-export type userId = number
+export type Id = number
 
 //export type LocationNames = Omit<PatheCinema, "id">

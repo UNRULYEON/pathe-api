@@ -1,7 +1,7 @@
 import { InlineKeyboardButton } from "node-telegram-bot-api"
 import { Movie, searchFilms } from "../scraper/search"
 import { bot } from "./bot"
-import { MovieResults, userId } from "./types"
+import { MovieResults, Id } from "./types"
 
 const backButton: InlineKeyboardButton = { text: "Back", callback_data: "prev" }
 const nextButton: InlineKeyboardButton = { text: "Next", callback_data: "next" }
@@ -19,15 +19,15 @@ const getState = (index: number, array_size: number): InlineKeyboardButton[][] =
   }
   return [current_state, [notifyButton, agendaButton]]
 }
-export const getMovieIndex = (m: MovieResults) => m.results[m.index]
+export const getMovieByIndex = (m: MovieResults) => m.results[m.index]
 
-const searchBot = (userSearches: Map<userId, MovieResults>) => {
+const searchBot = (userSearches: Map<Id, MovieResults>) => {
   bot.onText(/\/search (.+)/, async (msg, match) => {
     const chatId = msg.chat.id
     const query = match[1]
     userSearches.set(chatId, { index: 0, results: await searchFilms(query) })
     const currentSearch = userSearches.get(chatId)
-    const currentResult = getMovieIndex(currentSearch)
+    const currentResult = getMovieByIndex(currentSearch)
     bot.sendPhoto(chatId, currentResult.posterUrl, {
       caption: currentResult.name,
       reply_markup: {
@@ -49,7 +49,11 @@ const searchBot = (userSearches: Map<userId, MovieResults>) => {
       case "prev":
         userSearches.get(chatId).index--
         bot.editMessageMedia(
-          { media: getMovieIndex(currentSearch).posterUrl, type: "photo", caption: getMovieIndex(currentSearch).name },
+          {
+            media: getMovieByIndex(currentSearch).posterUrl,
+            type: "photo",
+            caption: getMovieByIndex(currentSearch).name,
+          },
           {
             chat_id: chatId,
             message_id: messageId,
@@ -62,7 +66,11 @@ const searchBot = (userSearches: Map<userId, MovieResults>) => {
       case "next":
         userSearches.get(chatId).index++
         bot.editMessageMedia(
-          { media: getMovieIndex(currentSearch).posterUrl, type: "photo", caption: getMovieIndex(currentSearch).name },
+          {
+            media: getMovieByIndex(currentSearch).posterUrl,
+            type: "photo",
+            caption: getMovieByIndex(currentSearch).name,
+          },
           {
             chat_id: chatId,
             message_id: messageId,
