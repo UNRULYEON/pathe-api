@@ -13,7 +13,7 @@ const initBot = () => {
   const userSearches = new Map<Id, MovieResults>()
   const cinemaSelection = new Map<Id, Map<number, PatheCinema>>()
   searchBot(userSearches)
-  notifyBot(cinemaSelection)
+  notifyBot(userSearches, cinemaSelection)
   confirmBot(userSearches, cinemaSelection)
 }
 

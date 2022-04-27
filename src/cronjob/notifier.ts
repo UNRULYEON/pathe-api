@@ -1,5 +1,5 @@
 import cron from "node-cron"
-import { cinemasWithFullNames, PatheCinema } from "../cinemas"
+import { cinemas, PatheCinema } from "../cinemas"
 import prisma from "../prisma/context"
 import getAvailableLocationsById from "../scraper/movie"
 import { bot } from "../telegram/bot"
@@ -21,9 +21,7 @@ const notifier = async () => {
   ).then((allAvailableLocation) => allAvailableLocation.filter((movie) => movie.locations.length > 0))
 
   const moviesWithLocations: { movieId: number; cinemas: PatheCinema[] }[] = availableLocations.reduce((acc, movie) => {
-    const allLocations = movie.locations.flatMap((location) =>
-      cinemasWithFullNames.filter((cinema) => cinema.name === location)
-    )
+    const allLocations = movie.locations.flatMap((location) => cinemas.filter((cinema) => cinema.fullName === location))
 
     return [...acc, { movieId: movie.movieId, cinemas: allLocations }]
   }, [])

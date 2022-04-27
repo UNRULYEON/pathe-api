@@ -20,6 +20,7 @@ const getState = (index: number, array_size: number, agendaUrl: string): InlineK
   }
   return [current_state, [notifyButton, agendaButton]]
 }
+
 export const getMovieByIndex = (m: MovieResults) => m.results[m.index]
 
 const searchBot = (userSearches: Map<Id, MovieResults>) => {
@@ -29,6 +30,7 @@ const searchBot = (userSearches: Map<Id, MovieResults>) => {
     userSearches.set(chatId, { index: 0, results: await searchFilms(query) })
     const currentSearch = userSearches.get(chatId)
     const currentResult = getMovieByIndex(currentSearch)
+
     bot.sendPhoto(chatId, currentResult.posterUrl, {
       caption: currentResult.name,
       reply_markup: {
@@ -40,15 +42,18 @@ const searchBot = (userSearches: Map<Id, MovieResults>) => {
   bot.on("callback_query", async (callback) => {
     const chatId = callback.message.chat.id
     const messageId = callback.message.message_id
+
     //TODO: improve index increment and decrements
     if (!userSearches.has(chatId)) {
       return
     }
+
     const currentSearch = userSearches.get(chatId)
 
     switch (callback.data) {
       case "prev":
         userSearches.get(chatId).index--
+
         bot.editMessageMedia(
           {
             media: getMovieByIndex(currentSearch).posterUrl,
@@ -70,6 +75,7 @@ const searchBot = (userSearches: Map<Id, MovieResults>) => {
         break
       case "next":
         userSearches.get(chatId).index++
+
         bot.editMessageMedia(
           {
             media: getMovieByIndex(currentSearch).posterUrl,
