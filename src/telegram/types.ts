@@ -19,7 +19,6 @@ export type Movie = {
   name: string
   posterUrl: string
   agendaUrl: string
-  availableLocations: string[]
 }
 
 export type MovieResults = {
