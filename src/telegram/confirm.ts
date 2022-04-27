@@ -41,6 +41,8 @@ const confirmBot = (userSearches: Map<Id, MovieResults>, cinemasHash: Map<Id, Ma
               chatId: chatId.toString(),
               movieId: parseInt(selectedMovie.id),
               messageId: messageId.toString(),
+              movieName: selectedMovie.name,
+              movieAgendaUrl: selectedMovie.agendaUrl,
               TelegramNotificationCinemas: {
                 createMany: { data: selectedCinemasDB.map((ID) => ({ cinemaId: ID.id })) },
               },

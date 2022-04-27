@@ -1,15 +1,16 @@
 import { InlineKeyboardButton } from "node-telegram-bot-api"
-import { Movie, searchFilms } from "../scraper/search"
+import { searchFilms } from "../scraper/search"
 import { bot } from "./bot"
 import { MovieResults, Id } from "./types"
 
 const backButton: InlineKeyboardButton = { text: "Back", callback_data: "prev" }
 const nextButton: InlineKeyboardButton = { text: "Next", callback_data: "next" }
 const notifyButton: InlineKeyboardButton = { text: "Notify when available", callback_data: "notify" }
-const agendaButton: InlineKeyboardButton = { text: "Agenda", callback_data: "agenda" }
 
 //TODO: improve
-const getState = (index: number, array_size: number): InlineKeyboardButton[][] => {
+const getState = (index: number, array_size: number, agendaUrl: string): InlineKeyboardButton[][] => {
+  const agendaButton: InlineKeyboardButton = { text: "Agenda", url: agendaUrl }
+
   const current_state = []
   if (index > 0) {
     current_state.push(backButton)
@@ -31,7 +32,7 @@ const searchBot = (userSearches: Map<Id, MovieResults>) => {
     bot.sendPhoto(chatId, currentResult.posterUrl, {
       caption: currentResult.name,
       reply_markup: {
-        inline_keyboard: getState(currentSearch.index, currentSearch.results.length - 1),
+        inline_keyboard: getState(currentSearch.index, currentSearch.results.length - 1, currentResult.agendaUrl),
       },
     })
   })
@@ -58,7 +59,11 @@ const searchBot = (userSearches: Map<Id, MovieResults>) => {
             chat_id: chatId,
             message_id: messageId,
             reply_markup: {
-              inline_keyboard: getState(currentSearch.index, currentSearch.results.length - 1),
+              inline_keyboard: getState(
+                currentSearch.index,
+                currentSearch.results.length - 1,
+                getMovieByIndex(currentSearch).agendaUrl
+              ),
             },
           }
         )
@@ -75,7 +80,11 @@ const searchBot = (userSearches: Map<Id, MovieResults>) => {
             chat_id: chatId,
             message_id: messageId,
             reply_markup: {
-              inline_keyboard: getState(currentSearch.index, currentSearch.results.length - 1),
+              inline_keyboard: getState(
+                currentSearch.index,
+                currentSearch.results.length - 1,
+                getMovieByIndex(currentSearch).agendaUrl
+              ),
             },
           }
         )
