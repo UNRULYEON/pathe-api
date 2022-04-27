@@ -5,14 +5,14 @@ import prisma from "../prisma/context"
 
 const BASE_URL = "https://www.pathe.nl"
 
-const getQueryString = (movieId: string, cinemaIds: number[]): string =>
+const getQueryString = (movieId: number, cinemaIds: number[]): string =>
   `film/${movieId}/agenda?${cinemaIds.reduce((acc, id) => acc + `cinemas=${id}&`, "")}`
 
 const instance = axios.create({
   baseURL: BASE_URL,
 })
 
-const getAvailableLocationsById = async (movieId: string): Promise<any> => {
+const getAvailableLocationsById = async (movieId: number): Promise<string[]> => {
   const cinemaIds = await prisma.cinema
     .findMany({ select: { patheId: true } })
     .then((cinemas) => cinemas.map((cinema) => cinema.patheId))

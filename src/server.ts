@@ -4,9 +4,11 @@ import { getUpcomingFilms } from "./scraper/upcoming"
 import { searchFilms } from "./scraper/search"
 import initBot from "./telegram/bot"
 import getAvailableLocationsById from "./scraper/movie"
+import notifier from "./cronjob/notifier"
 
 const app = express()
 
+notifier()
 app.get("/hello", (_, res) => res.send("world"))
 
 app.get("/search", async (req, res) => {
@@ -24,7 +26,7 @@ app.get("/upcoming", async (req, res) => {
 app.get("/locations_by_movie_id", async (req, res) => {
   if (!req.query.id) return res.sendStatus(400)
 
-  const locations = await getAvailableLocationsById(req.query.id as string)
+  const locations = await getAvailableLocationsById(req.query.id as unknown as number)
   res.send(locations)
 })
 initBot()

@@ -18,8 +18,10 @@ const confirmBot = (userSearches: Map<Id, MovieResults>, cinemasHash: Map<Id, Ma
         const selectedCinemasDB = await prisma.cinema
           .findMany()
           .then((cinemas) =>
-            selectedCinemas.length > 1
-              ? cinemas.filter((cinema) => selectedCinemas.find((selectedCinema) => selectedCinema.id === cinema.id))
+            selectedCinemas.length > 0
+              ? cinemas.filter((cinema) =>
+                  selectedCinemas.find((selectedCinema) => selectedCinema.id === cinema.patheId)
+                )
               : cinemas
           )
         const selectedCinemaNames = selectedCinemasDB.reduce(
