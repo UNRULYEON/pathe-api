@@ -21,8 +21,6 @@ const notifyBot = (userSearches: Map<Id, MovieResults>, cinemasHash: Map<Id, Map
     const cinemaIds = cinemas.map((e) => `select-${e.id}`)
     const allowedActions: string[] = ["notify", "confirm", ...cinemaIds]
 
-    console.log(cinemaIds)
-
     //TODO: parse id. Can this be done better
     const lastSelectedId = parseInt(action.split("-").reverse()[0])
     if (!allowedActions.includes(action)) return
