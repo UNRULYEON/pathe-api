@@ -78,6 +78,7 @@ const getKeyboard = (selectedId: number, cinemas: PatheCinema[], cinemasmap: Map
     }
 
     //TODO: improve this.
+    // Here is an idea: arr.push(res)
     arr[arr.length - 1] = [{ ...arr[arr.length - 1][0] }, { ...res }]
 
     return arr

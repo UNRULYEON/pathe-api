@@ -33,6 +33,10 @@ export const getMovieByIndex = (m: MovieResults) => m.results[m.index]
 const searchBot = (userSearches: Map<Id, MovieResults>) => {
   bot.onText(/\/search (.+)/, async (msg, match) => {
     const chatId = msg.chat.id
+    // TODO: Change to if match[1] is not equal to what type it's supposed to be (something regexp?)
+    if (match[1] === null) {
+      return bot.sendMessage(chatId, `Something went wrong... here is what: ${match[1]}`)
+    }
     const query = match[1]
     userSearches.set(chatId, {
       index: 0,
@@ -51,17 +55,21 @@ const searchBot = (userSearches: Map<Id, MovieResults>) => {
     const currentSearch = userSearches.get(chatId)
     const currentResult = getMovieByIndex(currentSearch)
 
-    bot.sendPhoto(chatId, currentResult.posterUrl, {
-      caption: currentResult.name,
-      reply_markup: {
-        inline_keyboard: getState(
-          currentSearch.index,
-          currentSearch.results.length - 1,
-          currentResult.agendaUrl,
-          currentResult.allLocationsAvailable
-        ),
-      },
-    })
+    try {
+      bot.sendPhoto(chatId, currentResult.posterUrl, {
+        caption: currentResult.name,
+        reply_markup: {
+          inline_keyboard: getState(
+            currentSearch.index,
+            currentSearch.results.length - 1,
+            currentResult.agendaUrl,
+            currentResult.allLocationsAvailable
+          ),
+        },
+      })
+    } catch (error) {
+      bot.sendMessage(chatId, `Something went wrong... here is what: ${error}`)
+    }
   })
 
   bot.on("callback_query", async (callback) => {
