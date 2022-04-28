@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "start:prod": "prisma:generate && prisma:deploy && prisma:seed && node dist/src/server.js",
+    "start:prod": "yarn prisma:generate && yarn prisma:deploy && yarn prisma:seed && node dist/src/server.js",
     "start": "ts-node-dev --respawn --transpile-only src/server.ts",
     "seed": "ts-node --transpile-only src/prisma/seed.ts",
     "prepare": "husky install",
