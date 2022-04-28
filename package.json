@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "start:prod": "yarn seed && node dist/src/server.js",
+    "start:prod": "npx prisma migrate deploy && yarn seed && node dist/src/server.js",
     "start": "ts-node-dev --respawn --transpile-only src/server.ts",
     "seed": "ts-node --transpile-only src/prisma/seed.ts",
     "prepare": "husky install"
