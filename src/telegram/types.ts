@@ -19,6 +19,7 @@ export type Movie = {
   name: string
   posterUrl: string
   agendaUrl: string
+  allLocationsAvailable?: boolean
 }
 
 export type MovieResults = {
