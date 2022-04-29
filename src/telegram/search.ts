@@ -34,7 +34,7 @@ const searchBot = (userSearches: Map<Id, MovieResults>) => {
   bot.onText(/\/search (.+)/, async (msg, match) => {
     const chatId = msg.chat.id
     // TODO: Change to if match[1] is not equal to what type it's supposed to be (something regexp?)
-    if (match[1] === null) {
+    if (match[1]) {
       return bot.sendMessage(chatId, `Something went wrong... here is what: ${match[1]}`)
     }
     const query = match[1]
