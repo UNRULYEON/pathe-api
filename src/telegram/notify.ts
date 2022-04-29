@@ -17,8 +17,8 @@ const notifyBot = (userSearches: Map<Id, MovieResults>, cinemasHash: Map<Id, Map
 
     const availableLocation = await getAvailableLocationsById(parseInt(selectedMovie.id))
 
-    // const cinemasFiltered = cinemas.filter(cinema => !availableLocation.includes(cinema.fullName))
-    const cinemaIds = cinemas.map((e) => `select-${e.id}`)
+    const cinemasFiltered = cinemas.filter((cinema) => !availableLocation.includes(cinema.fullName))
+    const cinemaIds = cinemasFiltered.map((e) => `select-${e.id}`)
     const allowedActions: string[] = ["notify", "confirm", ...cinemaIds]
 
     //TODO: parse id. Can this be done better
@@ -32,7 +32,7 @@ const notifyBot = (userSearches: Map<Id, MovieResults>, cinemasHash: Map<Id, Map
           bot.editMessageReplyMarkup(
             {
               inline_keyboard: [
-                ...getKeyboard(lastSelectedId, cinemas, cinemasHash.get(chatId)),
+                ...getKeyboard(lastSelectedId, cinemasFiltered, cinemasHash.get(chatId)),
                 [{ text: "✅", callback_data: "confirm" }],
               ],
             },
@@ -48,7 +48,7 @@ const notifyBot = (userSearches: Map<Id, MovieResults>, cinemasHash: Map<Id, Map
           reply_markup: {
             // TODO: Pas callback_data van confirm aan
             inline_keyboard: [
-              ...getKeyboard(0, cinemas, cinemasHash.get(chatId)),
+              ...getKeyboard(0, cinemasFiltered, cinemasHash.get(chatId)),
               [{ text: "✅", callback_data: "confirm" }],
             ],
           },
