@@ -7,13 +7,15 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "start:prod": "yarn prisma:generate && yarn prisma:deploy && yarn prisma:seed && node dist/src/server.js",
-    "start": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "seed": "ts-node --transpile-only src/prisma/seed.ts",
     "prepare": "husky install",
-    "prisma:deploy": "cd src && npx prisma migrate deploy && cd ..",
-    "prisma:generate": "cd src && npx prisma generate && cd ..",
-    "prisma:seed": "yarn seed"
+    "prisma:deploy": "npx prisma migrate deploy --schema=./src/prisma/schema.prisma",
+    "prisma:generate": "npx prisma generate --schema=./src/prisma/schema.prisma",
+    "prisma:migration": "npx prisma migrate dev --schema=./src/prisma/schema.prisma",
+    "prisma:seed": "yarn seed",
+    "prisma:studio": "cd src && npx prisma studio",
+    "start": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "start:prod": "yarn prisma:generate && yarn prisma:deploy && yarn prisma:seed && node dist/src/server.js",
+    "seed": "ts-node --transpile-only src/prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^3.12.0",
