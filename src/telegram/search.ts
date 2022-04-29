@@ -33,23 +33,25 @@ export const getMovieByIndex = (m: MovieResults) => m.results[m.index]
 const searchBot = (userSearches: Map<Id, MovieResults>) => {
   bot.onText(/\/search (.+)/, async (msg, match) => {
     const chatId = msg.chat.id
-    // TODO: Change to if match[1] is not equal to what type it's supposed to be (something regexp?)
-    if (match[1]) {
-      return bot.sendMessage(chatId, `Something went wrong... here is what: ${match[1]}`)
-    }
     const query = match[1]
+    const filmResult = await searchFilms(query).then((movies) =>
+      Promise.all(
+        movies.map(async (movie) => ({
+          ...movie,
+          allLocationsAvailable: await getAvailableLocationsById(parseInt(movie.id)).then(
+            (loc) => loc.length === cinemas.length
+          ),
+        }))
+      )
+    )
+
+    if (filmResult.length <= 0) {
+      return bot.sendMessage(chatId, `No movies found :(`)
+    }
+
     userSearches.set(chatId, {
       index: 0,
-      results: await searchFilms(query).then((movies) =>
-        Promise.all(
-          movies.map(async (movie) => ({
-            ...movie,
-            allLocationsAvailable: await getAvailableLocationsById(parseInt(movie.id)).then(
-              (loc) => loc.length === cinemas.length
-            ),
-          }))
-        )
-      ),
+      results: filmResult,
     })
 
     const currentSearch = userSearches.get(chatId)
