@@ -33,7 +33,6 @@ const getAvailableLocationsById = async (movieId: number): Promise<string[]> => 
       availableLocation.push(location)
     })
 
-    console.log(availableLocation)
     return availableLocation
   })
 
