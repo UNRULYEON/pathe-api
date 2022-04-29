@@ -68,7 +68,7 @@ const searchBot = (userSearches: Map<Id, MovieResults>) => {
         },
       })
     } catch (error) {
-      bot.sendMessage(chatId, `Something went wrong... here is what: ${error}`)
+      bot.sendMessage(chatId, `Something went wrong... here is what: ${error.message}`)
     }
   })
 
