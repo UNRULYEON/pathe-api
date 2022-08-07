@@ -15,7 +15,8 @@
     "prisma:studio": "cd src && npx prisma studio",
     "start": "ts-node-dev --respawn --transpile-only src/server.ts",
     "start:prod": "yarn prisma:generate && yarn prisma:deploy && yarn prisma:seed && node dist/src/server.js",
-    "seed": "ts-node --transpile-only src/prisma/seed.ts"
+    "seed": "ts-node --transpile-only src/prisma/seed.ts",
+    "start-db": "docker-compose --project-name=pathe-api up"
   },
   "dependencies": {
     "@prisma/client": "^3.13.0",

@@ -11,7 +11,7 @@ const instance = axios.create({
 export const searchFilms = async (query: string): Promise<Movie[]> => {
   const result = await instance.get(`Zoek?q=${query}`).then(({ request, data }) => {
     const $ = cheerio.load(data)
-    const movieContainerNode = $("#myticketsactual")
+    const movieContainerNode = $("#js-body > div > div.container > section > div > div > div > div > div:nth-child(4)")
 
     const movies: Movie[] = []
 
@@ -31,8 +31,6 @@ export const searchFilms = async (query: string): Promise<Movie[]> => {
 
     return movies
   })
-
-  //console.log(result)
 
   return result
 }
