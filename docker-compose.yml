@@ -15,11 +15,11 @@ services:
     command: yarn start:prod
     labels:
       - traefik.enable=true
-      - traefik.http.routers.syncthing.rule=Host(`pathe-api.amar.sh`)
-      - traefik.http.routers.syncthing.tls=true
-      - traefik.http.routers.syncthing.entrypoints=websecure
-      - traefik.http.routers.syncthing.tls.certresolver=certresolver
-      - traefik.http.services.syncthing.loadbalancer.server.port=4000
+      - traefik.http.routers.pathe-api.rule=Host(`pathe-api.amar.sh`)
+      - traefik.http.routers.pathe-api.tls=true
+      - traefik.http.routers.pathe-api.entrypoints=websecure
+      - traefik.http.routers.pathe-api.tls.certresolver=certresolver
+      - traefik.http.services.pathe-api.loadbalancer.server.port=4000
   postgres:
     image: postgres:10
     restart: unless-stopped
