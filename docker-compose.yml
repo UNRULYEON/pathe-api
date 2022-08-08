@@ -34,3 +34,8 @@ services:
 
 volumes:
   dbvolume: {}
+
+networks:
+  default:
+    external:
+      name: traefik_default
