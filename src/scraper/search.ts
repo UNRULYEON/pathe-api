@@ -37,11 +37,11 @@ export const searchFilms = async (query: string): Promise<Movie[]> => {
         getMoviesfromList($("#js-body > div > div.container > section > div > div > div > div > div:nth-child(4)"))
       }
 
-      if (titleNode.text().trim() === "Binnekort") {
+      if (titleNode.text().trim() === "Binnenkort") {
         if (movies.length > 0) {
-          getMoviesfromList($("#js-body > div > div.container > section > div > div > div > div > div:nth-child(4)"))
-        } else {
           getMoviesfromList($("#js-body > div > div.container > section > div > div > div > div > div:nth-child(6)"))
+        } else {
+          getMoviesfromList($("#js-body > div > div.container > section > div > div > div > div > div:nth-child(4)"))
         }
       }
     })
