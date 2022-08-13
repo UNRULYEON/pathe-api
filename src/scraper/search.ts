@@ -11,14 +11,15 @@ const instance = axios.create({
 export const searchFilms = async (query: string): Promise<Movie[]> => {
   const result = await instance.get(`Zoek?q=${query}`).then(({ request, data }) => {
     const $ = cheerio.load(data)
-    const movieContainerNode = $("#js-body > div > div.container > section > div > div > div > div > div:nth-child(4)")
+    const rootNode = $("#js-body > div > div.container > section > div > div > div > div")
+    const titleNodes = rootNode.find(".heading__title")
 
     const movies: Movie[] = []
 
-    movieContainerNode.each((i, el) => {
-      const movieListNode = $(el).children("div")
+    const getMoviesfromList = (movieListNode: any) => {
+      const movieNodes = movieListNode.children("div")
 
-      movieListNode.each((i, el) => {
+      movieNodes.each((i, el) => {
         const movieNode = $(el)
         const id = movieNode.find(".search-poster__poster > a").attr("href").split("/")[2]
         const name = movieNode.find("h4 > a").text()
@@ -27,6 +28,22 @@ export const searchFilms = async (query: string): Promise<Movie[]> => {
 
         movies.push({ id, name, posterUrl, agendaUrl })
       })
+    }
+
+    titleNodes.each((i, el) => {
+      const titleNode = $(el)
+
+      if (titleNode.text().trim() === "Nu bij Pathé") {
+        getMoviesfromList($("#js-body > div > div.container > section > div > div > div > div > div:nth-child(4)"))
+      }
+
+      if (titleNode.text().trim() === "Binnekort") {
+        if (movies.length > 0) {
+          getMoviesfromList($("#js-body > div > div.container > section > div > div > div > div > div:nth-child(4)"))
+        } else {
+          getMoviesfromList($("#js-body > div > div.container > section > div > div > div > div > div:nth-child(6)"))
+        }
+      }
     })
 
     return movies
